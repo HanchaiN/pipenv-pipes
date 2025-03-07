@@ -27,6 +27,7 @@ from .core import (
 
 @click.command()
 @click.argument('envname', default='', required=False)
+@click.option('--force', '-f', is_flag=True, help='Select first match')
 @click.option(
     '--list', 'list_',
     is_flag=True,
@@ -48,7 +49,7 @@ from .core import (
 @click.option('--version', is_flag=True, help='Show Version')
 @click.option('--_completion', is_flag=True)
 @click.pass_context
-def pipes(ctx, envname, list_, setlink, unlink, verbose, version, delete,
+def pipes(ctx, envname, force, list_, setlink, unlink, verbose, version, delete,
           _completion):
     """
 
@@ -103,7 +104,16 @@ def pipes(ctx, envname, list_, setlink, unlink, verbose, version, delete,
         set_env_dir(project_dir=setlink)
 
     matches = get_query_matches(environments, envname)
-    environment = ensure_one_match(envname, matches, environments)
+    if force:
+        if delete:
+            click.echo('Cannot use --force with --delete')
+            sys.exit(1)
+        if not matches:
+            click.echo('No matches found for {}'.format(envname))
+            sys.exit(1)
+        environment = matches[0]
+    else:
+        environment = ensure_one_match(envname, matches, environments)
 
     if delete:
         if not click.confirm(
@@ -128,8 +138,7 @@ def pipes(ctx, envname, list_, setlink, unlink, verbose, version, delete,
             click.echo('Project directory was already clear.')
         sys.exit(0)
 
-    else:
-        launch_env(environment)
+    launch_env(environment)
 
 
 def set_env_dir(project_dir):

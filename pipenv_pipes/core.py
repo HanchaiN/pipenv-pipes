@@ -22,20 +22,6 @@ def find_environments(pipenv_home):
     Pipenv Environment location
     """
     environments = []
-    for folder_name in sorted(os.listdir(pipenv_home)):
-        envpath = os.path.join(pipenv_home, folder_name)
-        project_name, venv_type = get_project_info(folder_name)
-        if not project_name:
-            continue
-
-        binpath = find_binary(envpath)
-        environment = Environment(project_name=project_name,
-                                  envpath=envpath,
-                                  envname=folder_name,
-                                  binpath=binpath,
-                                  venv_type=venv_type,
-                                  )
-        environments.append(environment)
     cwd = os.getcwd()
     for folder_name in LOCAL_ENV:
         envpath = os.path.join(cwd, folder_name)
@@ -54,6 +40,20 @@ def find_environments(pipenv_home):
                                   )
         environments.append(environment)
         break
+    for folder_name in sorted(os.listdir(pipenv_home)):
+        envpath = os.path.join(pipenv_home, folder_name)
+        project_name, venv_type = get_project_info(folder_name)
+        if not project_name:
+            continue
+
+        binpath = find_binary(envpath)
+        environment = Environment(project_name=project_name,
+                                  envpath=envpath,
+                                  envname=folder_name,
+                                  binpath=binpath,
+                                  venv_type=venv_type,
+                                  )
+        environments.append(environment)
     return environments
 
 
