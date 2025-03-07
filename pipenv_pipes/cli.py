@@ -2,16 +2,18 @@
 
 """ Pipes: Pipenv Shell Switcher """
 
+import os
 import sys
 import click
 
 from . import __version__
+from .define import VenvType
 from .environment import EnvVars
 from .picker import Picker
 from .utils import get_query_matches, collapse_path
-from .pipenv import (
-    call_pipenv_venv,
-    call_pipenv_shell,
+from .caller import (
+    call_venv,
+    call_shell,
 )
 from .core import (
     find_environments,
@@ -138,7 +140,7 @@ def set_env_dir(project_dir):
 
     # Before setting project_dir, let's make sure directory is actually
     # Associated with the env, otherwise activation will not work
-    project_dir_envpath = ensure_project_dir_has_env(project_dir)
+    project_dir_envpath = ensure_project_dir_has_env(project_dir, None)
 
     click.echo("Found Environment: ", nl=False)
     click.echo(click.style(project_dir_envpath, fg='blue'))
@@ -161,8 +163,8 @@ def launch_env(environment):
     click.echo(msg_dir)
     click.echo(msg_env)
 
-    ensure_project_dir_has_env(project_dir)
-    call_pipenv_shell(cwd=project_dir, envname=environment.envname)
+    ensure_project_dir_has_env(project_dir, venv_type=environment.venv_type)
+    call_shell(cwd=project_dir, envname=environment.envname, venv_type=environment.venv_type)
     msg = 'Terminating Pipes Shell...'
     click.echo(click.style(msg, fg='red'))
     sys.exit(0)
@@ -215,6 +217,8 @@ def ensure_has_project_dir_file(environment):
     Ensures the enviromend has .project file.
     If check failes, error is printed recommending course of action
     """
+    if environment.venv_type == VenvType.LOCAL:
+        return os.path.dirname(environment.envpath)
     project_dir = read_project_dir_file(environment.envpath)
 
     if project_dir:
@@ -257,8 +261,8 @@ def ensure_one_match(query, matches, environments):
     return match
 
 
-def ensure_project_dir_has_env(project_dir):
-    output, code = call_pipenv_venv(project_dir)
+def ensure_project_dir_has_env(project_dir, venv_type):
+    output, code = call_venv(project_dir, venv_type)
     if code == 0:
         envpath = output
         return envpath

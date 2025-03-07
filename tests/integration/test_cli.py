@@ -26,7 +26,7 @@ def test_cli_from_shell():
     assert 'show this message and exit' in result.lower()
 
 
-@pytest.mark.curses
+# @pytest.mark.curses
 def test_cli_no_args(runner):
     result = runner.invoke(pipes)
     assert result.exit_code == 1
@@ -35,7 +35,7 @@ def test_cli_no_args(runner):
 
 
 @pytest.mark.skip('Not needed')
-@pytest.mark.curses
+# @pytest.mark.curses
 def test_cli_no_args_verbose(runner):
     result = runner.invoke(
         pipes, ['--verbose'], catch_exceptions=False)
@@ -43,7 +43,7 @@ def test_cli_no_args_verbose(runner):
     assert 'PIPENV_HOME' in result.output
 
 
-@pytest.mark.curses
+# @pytest.mark.curses
 def test_many_match(runner):
     result = runner.invoke(pipes, args=['proj'])
     assert result.exit_code == 1

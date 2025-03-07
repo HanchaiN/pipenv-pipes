@@ -1,3 +1,4 @@
+from pipenv_pipes.define import VenvType
 import pytest
 import os
 from subprocess import Popen, PIPE
@@ -152,30 +153,34 @@ def runner_fast(mock_env_home):
 @pytest.fixture(name='environments')
 def fake_environments():
     """ Used by unit.test_utils parametrics tests """
-    from pipenv_pipes.core import Environment
+    from pipenv_pipes.define import Environment
     return [
         Environment(
             project_name='proj1',
             envname='proj1-1C_-wqgW',
             envpath='~/fakedir/proj1-12345678',
-            binpath='~/fakedir/proj1-12345678/bin/python'
+            binpath='~/fakedir/proj1-12345678/bin/python',
+            venv_type=VenvType.PIPENV,
             ),
         Environment(
             project_name='proj2',
             envname='proj2-12345678',
             envpath='~/fakedir/proj2-12345678',
-            binpath='~/fakedir/proj2-12345678/bin/python'
+            binpath='~/fakedir/proj2-12345678/bin/python',
+            venv_type=VenvType.PIPENV,
             ),
         Environment(
             project_name='abc-o',
             envname='abc-o-12345678',
             envpath='~/fakedir/abc-o-12345678',
-            binpath='~/fakedir/abc-o-12345678/bin/python'
+            binpath='~/fakedir/abc-o-12345678/bin/python',
+            venv_type=VenvType.PIPENV,
             ),
         Environment(
             project_name='notpipenv',
             envname='notpipenv',
             envpath='~/fakedir/notpipenv',
-            binpath='~/fakedir/notpipenv/bin/python'
+            binpath='~/fakedir/notpipenv/bin/python',
+            venv_type=VenvType.PIPENV,
             ),
     ]

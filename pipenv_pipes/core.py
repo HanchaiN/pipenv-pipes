@@ -1,21 +1,19 @@
+# -*- coding: utf-8 -*-
+
+""" Pipes: Pipenv Shell Switcher """
 
 import os
 import shutil
 import time
-from collections import namedtuple
 
-from .pipenv import call_python_version
+from .caller import call_python_version
+from .define import LOCAL_ENV
+from .define import Environment, VenvType
 from .utils import (
-    get_project_name,
+    get_project_info,
     get_project_dir_filepath,
+    get_project_info_local,
 )
-
-Environment = namedtuple('Environment', [
-    'envpath',
-    'envname',
-    'project_name',
-    'binpath',
-    ])
 
 
 def find_environments(pipenv_home):
@@ -26,7 +24,7 @@ def find_environments(pipenv_home):
     environments = []
     for folder_name in sorted(os.listdir(pipenv_home)):
         envpath = os.path.join(pipenv_home, folder_name)
-        project_name = get_project_name(folder_name)
+        project_name, venv_type = get_project_info(folder_name)
         if not project_name:
             continue
 
@@ -35,8 +33,27 @@ def find_environments(pipenv_home):
                                   envpath=envpath,
                                   envname=folder_name,
                                   binpath=binpath,
+                                  venv_type=venv_type,
                                   )
         environments.append(environment)
+    cwd = os.getcwd()
+    for folder_name in LOCAL_ENV:
+        envpath = os.path.join(cwd, folder_name)
+        if not os.path.isdir(envpath):
+            continue
+        project_name, venv_type = get_project_info_local(envpath)
+        venv_type = VenvType.LOCAL
+        envname = f"{project_name}/{folder_name}"
+
+        binpath = find_binary(envpath)
+        environment = Environment(project_name=project_name,
+                                  envpath=envpath,
+                                  envname=envname,
+                                  binpath=binpath,
+                                  venv_type=venv_type,
+                                  )
+        environments.append(environment)
+        break
     return environments
 
 
